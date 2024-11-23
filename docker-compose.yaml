@@ -1,0 +1,52 @@
+services:
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: redis
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --dir /data 
+      --save 60 1 
+      --appendonly yes 
+      --protected-mode no 
+      --loadmodule /opt/redis-stack/lib/rejson.so
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+
+  redis-replica:
+    image: redis/redis-stack-server:latest
+    container_name: redis-replica
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --dir /data 
+      --save 60 1 
+      --appendonly yes 
+      --protected-mode no 
+      --loadmodule /opt/redis-stack/lib/rejson.so
+      --replicaof redis 6379
+    ports:
+      - 6380:6379
+    volumes:
+      - redis-data-replica:/data
+    depends_on:
+      - redis
+
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    restart: unless-stopped
+    container_name: redisinsight
+    ports:
+      - 5540:5540
+    volumes:
+      - redis-insight:/data
+    depends_on:
+      - redis
+      - redis-replica
+
+volumes:
+  redis-data:
+  redis-data-replica:
+  redis-insight:
