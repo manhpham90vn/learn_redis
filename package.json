@@ -1,0 +1,13 @@
+{
+  "name": "learn_redis",
+  "version": "1.0.0",
+  "description": "learn redis",
+  "scripts": {
+    "dev": "node src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ioredis": "^5.4.1"
+  }
+}
