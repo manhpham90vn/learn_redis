@@ -240,4 +240,68 @@ const listBasic = async () => {
   console.log("response lmove: ", lmove);
 };
 
-listBasic();
+const hashBasic = async () => {
+  // Set a field in the hash stored at key
+  const hset = await redis.hset("hash", "field1", "value1");
+  console.log("response hset: ", hset);
+
+  // Get the value of a field in the hash stored at key
+  const hget = await redis.hget("hash", "field1");
+  console.log("response hget: ", hget);
+
+  // Get all the fields and values in the hash stored at key
+  const hgetall = await redis.hgetall("hash");
+  console.log("response hgetall: ", hgetall);
+
+  // Set multiple fields at once
+  const hmset = await redis.hmset(
+    "hash",
+    "field2",
+    "value2",
+    "field3",
+    "value3"
+  );
+  console.log("response hmset: ", hmset);
+
+  // Get multiple fields at once
+  const hmget = await redis.hmget("hash", "field1", "field2", "field3");
+  console.log("response hmget: ", hmget);
+
+  // Get length of fields in hash
+  const hlen = await redis.hlen("hash");
+  console.log("response hlen: ", hlen);
+
+  // Delete fields from hash
+  const hdel = await redis.hdel("hash", "field1", "field2");
+  console.log("response hdel: ", hdel);
+
+  // Check if field exists in hash
+  const hexists = await redis.hexists("hash", "field3");
+  console.log("response hexists: ", hexists);
+
+  // Get all field names in hash
+  const hkeys = await redis.hkeys("hash");
+  console.log("response hkeys: ", hkeys);
+
+  // Get all values in hash
+  const hvals = await redis.hvals("hash");
+  console.log("response hvals: ", hvals);
+
+  // Count number increment in hash
+  const hincrby = await redis.hincrby("hash", "field4", 1);
+  console.log("response hincrby: ", hincrby);
+
+  // Count number increment floating point in hash
+  const hincrbyfloat = await redis.hincrbyfloat("hash", "field5", 1.5);
+  console.log("response hincrbyfloat: ", hincrbyfloat);
+
+  // Add new field to hash only if field does not exist
+  const hsetnx = await redis.hsetnx("hash", "field6", "value6");
+  console.log("response hsetnx: ", hsetnx);
+
+  // Get random field from hash
+  const hrandfield = await redis.hrandfield("hash");
+  console.log("response hrandfield: ", hrandfield);
+};
+
+hashBasic();
