@@ -10,7 +10,7 @@ services:
       --appendonly yes 
       --protected-mode no 
       --loadmodule /opt/redis-stack/lib/rejson.so
-      --notify-keyspace-events Ex
+      --notify-keyspace-events AKE
     ports:
       - 6379:6379
     volumes:
@@ -27,12 +27,14 @@ services:
       --appendonly yes
       --protected-mode no
       --loadmodule /opt/redis-stack/lib/rejson.so
-      --notify-keyspace-events Ex
+      --notify-keyspace-events AKE
       --replicaof redis 6379
     ports:
       - 6380:6379
     depends_on:
       - redis
+    volumes:
+      - redis-replica-data:/data
 
   redis-insight:
     image: redislabs/redisinsight:latest
@@ -48,4 +50,5 @@ services:
 
 volumes:
   redis-data:
+  redis-replica-data:
   redis-insight:
