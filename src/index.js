@@ -187,4 +187,57 @@ const stringBasic = async () => {
   console.log("response all keys: ", allKeys);
 };
 
-stringBasic();
+const listBasic = async () => {
+  // Push a value to list in the head
+  const lpush = await redis.lpush("lpush", "value1", "value2", "value3");
+  console.log("response lpush: ", lpush);
+
+  // Push a value to list in the tail
+  const rpush = await redis.rpush("rpush", "value4", "value5", "value6");
+
+  // get value from list at index
+  const lindex = await redis.lindex("lpush", 0);
+  console.log("response lindex: ", lindex);
+
+  // get value from list in range
+  const lrange = await redis.lrange("lpush", 0, -1);
+  console.log("response lrange: ", lrange);
+
+  // insert value before or after existing value
+  const linsert = await redis.linsert("lpush", "BEFORE", "value1", "new_value");
+  console.log("response linsert: ", linsert);
+
+  // remove value in list at head
+  const lpop = await redis.lpop("lpush");
+  console.log("response lpop: ", lpop);
+
+  // remove value in list at tail
+  const rpop = await redis.rpop("lpush");
+  console.log("response rpop: ", rpop);
+
+  // trim list
+  const ltrim = await redis.ltrim("lpush", 0, 1);
+  console.log("response ltrim: ", ltrim);
+
+  // update element in list
+  const lset = await redis.lset("lpush", 0, "new_value");
+  console.log("response lset: ", lset);
+
+  // get length of list
+  const llen = await redis.llen("lpush");
+  console.log("response llen: ", llen);
+
+  // find matching element in list
+  const lpos = await redis.lpos("list", "value2", "COUNT", 1000);
+  console.log("response lpos: ", lpos);
+
+  // remove element in list
+  const lrem = await redis.lrem("list", 0, "value2");
+  console.log("response lrem: ", lrem);
+
+  // move element from list to another list
+  const lmove = await redis.lmove("list", "list3", "LEFT", "RIGHT");
+  console.log("response lmove: ", lmove);
+};
+
+listBasic();
