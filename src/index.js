@@ -100,6 +100,91 @@ const basic = async () => {
   });
 };
 
-const stringBasic = async () => {};
+const stringBasic = async () => {
+  // Count number increment
+  const count = await redis.incr("count");
+  console.log("response incr: ", count);
+
+  // Count number decrement
+  const count2 = await redis.decr("count");
+  console.log("response decr: ", count2);
+
+  // Count number increment floating point
+  const count3 = await redis.incrbyfloat("count_float", 1.5);
+  console.log("response incrbyfloat: ", count3);
+
+  // Append a value to a key
+  const append = await redis.append("key", "value");
+  console.log("response append: ", append);
+
+  // Get length of value
+  const length = await redis.strlen("key");
+  console.log("response strlen: ", length);
+
+  // Set multiple keys
+  const mset = await redis.mset("key1", "value1", "key2", "value2");
+  console.log("response mset: ", mset);
+
+  // Get multiple keys
+  const mget = await redis.mget("key1", "key2");
+  console.log("response mget: ", mget);
+
+  // Set multiple keys only if none of the keys exist
+  const msetnx = await redis.msetnx(
+    "key1",
+    "value11",
+    "key2",
+    "value22",
+    "key3",
+    "value33"
+  );
+  console.log("response msetnx: ", msetnx);
+
+  // Getset a key
+  const getset = await redis.getset("key", "new_value");
+  console.log("response getset: ", getset);
+  console.log("getset: ", await redis.get("key"));
+
+  // Get range of value
+  const range = await redis.getrange("key", 0, 3);
+  console.log("response getrange: ", range);
+
+  // Replace part of value
+  const replace = await redis.setrange("key", 0, "000");
+  console.log("response setrange: ", replace);
+
+  // Set a key with an expiration time in seconds
+  const setex = await redis.setex("key", 10, "value");
+  console.log("response setex: ", setex);
+
+  // Set a key with an expiration time in milliseconds
+  const psetex = await redis.psetex("key", 10000, "value");
+  console.log("response psetex: ", psetex);
+
+  // Set a key only if it does not exist
+  const setnx = await redis.setnx("key999", "value");
+  console.log("response setnx: ", setnx);
+
+  // serialize and deserialize
+  const serialize = await redis.set("json", JSON.stringify({ key: "value" }));
+  console.log("response serialize: ", serialize);
+
+  const deserialize = await redis.get("json");
+  console.log("response deserialize: ", JSON.parse(deserialize));
+
+  // scan keys
+  const scan = await redis.scan(0);
+  console.log("response scan: ", scan);
+
+  // scan all keys
+  let cursor = 0;
+  let allKeys = [];
+  do {
+    const [newCursor, keys] = await redis.scan(cursor);
+    cursor = newCursor;
+    allKeys = allKeys.concat(keys);
+  } while (cursor !== "0");
+  console.log("response all keys: ", allKeys);
+};
 
 stringBasic();
