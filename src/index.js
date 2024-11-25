@@ -437,4 +437,67 @@ const setBasic = async () => {
   console.log("response sdiffstore: ", sdiffstore);
 };
 
-setBasic();
+const sortedSetBasic = async () => {
+  // Add member to sorted set
+  // The zadd command is used to add a member to a sorted set.
+  const zadd = await redis.zadd(
+    "sortedset",
+    1,
+    "member1",
+    2,
+    "member2",
+    3,
+    "member3"
+  );
+  console.log("response zadd: ", zadd);
+
+  // Get all members in sorted set
+  // The zrange command is used to get all members in a sorted set.
+  const zrange = await redis.zrange("sortedset", 0, -1);
+  console.log("response zrange: ", zrange);
+
+  // Get all members in sorted set in reverse order
+  // The zrevrange command is used to get all members in a sorted set in reverse order.
+  const zrevrange = await redis.zrevrange("sortedset", 0, -1);
+  console.log("response zrevrange: ", zrevrange);
+
+  // Get all members in sorted set with scores
+  // The zrange command is used to get all members in a sorted set with scores.
+  const zrangeWithScores = await redis.zrange("sortedset", 0, -1, "WITHSCORES");
+  console.log("response zrange with scores: ", zrangeWithScores);
+
+  // Atomic increment member in sorted set
+  // The zincrby command is used to increment the score of a member in a sorted set.
+  const zincrby = await redis.zincrby("sortedset", 1, "member1");
+  console.log("response zincrby: ", zincrby);
+
+  // Get rank of member in sorted set
+  // The zrank command is used to get the rank of a member in a sorted set.
+  const zrank = await redis.zrank("sortedset", "member1");
+  console.log("response zrank: ", zrank);
+};
+
+const hyperLogLogBasic = async () => {
+  // Add element to HyperLogLog
+  // The pfadd command is used to add an element to a HyperLogLog.
+  const pfadd = await redis.pfadd(
+    "hll",
+    "element1",
+    "element2",
+    "element2",
+    "element3"
+  );
+  console.log("response pfadd: ", pfadd);
+
+  // Count the number of unique elements in HyperLogLog
+  // The pfcount command is used to count the number of unique elements in a HyperLogLog.
+  const pfcount = await redis.pfcount("hll");
+  console.log("response pfcount: ", pfcount);
+
+  // Merge multiple HyperLogLogs
+  // The pfmerge command is used to merge multiple HyperLogLogs.
+  const pfmerge = await redis.pfmerge("hll2", "hll");
+  console.log("response pfmerge: ", pfmerge);
+};
+
+hyperLogLogBasic();
