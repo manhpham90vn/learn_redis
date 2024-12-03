@@ -1,0 +1,189 @@
+services:
+  redis-cluster-node1:
+    image: redis/redis-stack-server:latest
+    container_name: cluster-node1
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --dir /data 
+      --save 60 1 
+      --appendonly yes 
+      --protected-mode no 
+      --cluster-enabled yes
+      --loadmodule /opt/redis-stack/lib/rejson.so
+      --notify-keyspace-events AKE
+    ports:
+      - 6379:6379
+    volumes:
+      - node1:/data
+    networks:
+      - redis-cluster
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
+      interval: 10s
+      retries: 5
+
+  redis-cluster-node2:
+    image: redis/redis-stack-server:latest
+    container_name: cluster-node2
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --dir /data 
+      --save 60 1 
+      --appendonly yes 
+      --protected-mode no 
+      --cluster-enabled yes
+      --loadmodule /opt/redis-stack/lib/rejson.so
+      --notify-keyspace-events AKE
+    ports:
+      - 6380:6379
+    volumes:
+      - node2:/data
+    networks:
+      - redis-cluster
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
+      interval: 10s
+      retries: 5
+
+  redis-cluster-node3:
+    image: redis/redis-stack-server:latest
+    container_name: cluster-node3
+    restart: unless-stopped
+    command: >
+      redis-server
+      --dir /data
+      --save 60 1
+      --appendonly yes
+      --protected-mode no
+      --cluster-enabled yes
+      --loadmodule /opt/redis-stack/lib/rejson.so
+      --notify-keyspace-events AKE
+    ports:
+      - 6381:6379
+    volumes:
+      - node3:/data
+    networks:
+      - redis-cluster
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
+      interval: 10s
+      retries: 5
+
+  redis-cluster-node4:
+    image: redis/redis-stack-server:latest
+    container_name: cluster-node4
+    restart: unless-stopped
+    command: >
+      redis-server
+      --dir /data
+      --save 60 1
+      --appendonly yes
+      --protected-mode no
+      --cluster-enabled yes
+      --loadmodule /opt/redis-stack/lib/rejson.so
+      --notify-keyspace-events AKE
+    ports:
+      - 6382:6379
+    volumes:
+      - node4:/data
+    networks:
+      - redis-cluster
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
+      interval: 10s
+      retries: 5
+
+  redis-cluster-node5:
+    image: redis/redis-stack-server:latest
+    container_name: cluster-node5
+    restart: unless-stopped
+    command: >
+      redis-server
+      --dir /data
+      --save 60 1
+      --appendonly yes
+      --protected-mode no
+      --cluster-enabled yes
+      --loadmodule /opt/redis-stack/lib/rejson.so
+      --notify-keyspace-events AKE
+    ports:
+      - 6383:6379
+    volumes:
+      - node5:/data
+    networks:
+      - redis-cluster
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
+      interval: 10s
+      retries: 5
+
+  redis-cluster-node6:
+    image: redis/redis-stack-server:latest
+    container_name: cluster-node6
+    restart: unless-stopped
+    command: >
+      redis-server
+      --dir /data
+      --save 60 1
+      --appendonly yes
+      --protected-mode no
+      --cluster-enabled yes
+      --loadmodule /opt/redis-stack/lib/rejson.so
+      --notify-keyspace-events AKE
+    ports:
+      - 6384:6379
+    volumes:
+      - node6:/data
+    networks:
+      - redis-cluster
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
+      interval: 10s
+      retries: 5
+
+  node-master:
+    image: redis/redis-stack-server:latest
+    container_name: cluster-node-master
+    restart: unless-stopped
+    command: >
+      sh -c "sleep 10 && redis-cli --cluster create node1:6379 node2:6380 node3:6381 node4:6382 node5:6383 node6:6384 --cluster-replicas 1"
+    volumes:
+      - node-master:/data
+    networks:
+      - redis-cluster
+    depends_on:
+      - redis-cluster-node1
+      - redis-cluster-node2
+      - redis-cluster-node3
+      - redis-cluster-node4
+      - redis-cluster-node5
+      - redis-cluster-node6
+
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    restart: unless-stopped
+    container_name: redisinsight
+    ports:
+      - 5540:5540
+    volumes:
+      - redis-insight:/data
+    depends_on:
+      - node-master
+    networks:
+      - redis-cluster
+
+volumes:
+  node1:
+  node2:
+  node3:
+  node4:
+  node5:
+  node6:
+  node-master:
+  redis-insight:
+
+networks:
+  redis-cluster:
+    driver: bridge
