@@ -13,13 +13,12 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379:6379
+      - 6379
     volumes:
       - node1:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.1
-
+        ipv4_address: 173.18.0.2
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
@@ -39,12 +38,12 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379:6379
+      - 6379
     volumes:
       - node2:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.2
+        ipv4_address: 173.18.0.3
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
@@ -64,12 +63,12 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379:6379
+      - 6379
     volumes:
       - node3:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.3
+        ipv4_address: 173.18.0.4
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
@@ -89,12 +88,12 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379:6379
+      - 6379
     volumes:
       - node4:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.4
+        ipv4_address: 173.18.0.5
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
@@ -114,12 +113,12 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379:6379
+      - 6379
     volumes:
       - node5:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.5
+        ipv4_address: 173.18.0.6
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
@@ -139,35 +138,50 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379:6379
+      - 6379
     volumes:
       - node6:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.6
+        ipv4_address: 173.18.0.7
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
       retries: 5
 
-  node-master:
+  redis-cluster-init:
     image: redis/redis-stack-server:latest
-    container_name: cluster-node-master
-    restart: unless-stopped
+    container_name: cluster-node-init
+    restart: "no"
     command: >
-      sh -c "sleep 10 && redis-cli --cluster create node1:6379 node2:6380 node3:6381 node4:6382 node5:6383 node6:6384 --cluster-replicas 1"
-    volumes:
-      - node-master:/data
+      sh -c "
+      redis-cli --cluster create \
+      --cluster-yes \
+      --cluster-replicas 1 \
+      redis-cluster-node1:6379 \
+      redis-cluster-node2:6379 \
+      redis-cluster-node3:6379 \
+      redis-cluster-node4:6379 \
+      redis-cluster-node5:6379 \
+      redis-cluster-node6:6379 \
+      && exit 0
+      "
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.7
+        ipv4_address: 173.18.0.8
     depends_on:
-      - redis-cluster-node1
-      - redis-cluster-node2
-      - redis-cluster-node3
-      - redis-cluster-node4
-      - redis-cluster-node5
-      - redis-cluster-node6
+      redis-cluster-node1:
+        condition: service_healthy
+      redis-cluster-node2:
+        condition: service_healthy
+      redis-cluster-node3:
+        condition: service_healthy
+      redis-cluster-node4:
+        condition: service_healthy
+      redis-cluster-node5:
+        condition: service_healthy
+      redis-cluster-node6:
+        condition: service_healthy
 
   redis-insight:
     image: redislabs/redisinsight:latest
@@ -177,11 +191,9 @@ services:
       - 5540:5540
     volumes:
       - redis-insight:/data
-    depends_on:
-      - node-master
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.8
+        ipv4_address: 173.18.0.9
 
 volumes:
   node1:
@@ -190,7 +202,6 @@ volumes:
   node4:
   node5:
   node6:
-  node-master:
   redis-insight:
 
 networks:
