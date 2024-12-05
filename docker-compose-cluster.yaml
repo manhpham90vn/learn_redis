@@ -18,7 +18,7 @@ services:
       - node1:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.2
+        ipv4_address: 10.0.0.2
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
@@ -43,7 +43,7 @@ services:
       - node2:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.3
+        ipv4_address: 10.0.0.3
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
@@ -68,7 +68,7 @@ services:
       - node3:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.4
+        ipv4_address: 10.0.0.4
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
@@ -93,7 +93,7 @@ services:
       - node4:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.5
+        ipv4_address: 10.0.0.5
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
@@ -118,7 +118,7 @@ services:
       - node5:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.6
+        ipv4_address: 10.0.0.6
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
@@ -143,7 +143,7 @@ services:
       - node6:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.7
+        ipv4_address: 10.0.0.7
     healthcheck:
       test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
       interval: 10s
@@ -154,21 +154,38 @@ services:
     container_name: cluster-node-init
     restart: "no"
     command: >
-      sh -c "
-      redis-cli --cluster create \
-      --cluster-yes \
-      --cluster-replicas 1 \
-      redis-cluster-node1:6379 \
-      redis-cluster-node2:6379 \
-      redis-cluster-node3:6379 \
-      redis-cluster-node4:6379 \
-      redis-cluster-node5:6379 \
-      redis-cluster-node6:6379 \
-      && exit 0
-      "
+      sh -c "/init.sh"
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.8
+        ipv4_address: 10.0.0.8
+    volumes:
+      - ./init.sh/:/init.sh
+    depends_on:
+      redis-cluster-node1:
+        condition: service_healthy
+      redis-cluster-node2:
+        condition: service_healthy
+      redis-cluster-node3:
+        condition: service_healthy
+      redis-cluster-node4:
+        condition: service_healthy
+      redis-cluster-node5:
+        condition: service_healthy
+      redis-cluster-node6:
+        condition: service_healthy
+
+  redis-haproxy:
+    image: haproxy:latest
+    container_name: redis-haproxy
+    restart: unless-stopped
+    ports:
+      - 6381:6381
+      - 6382:6382
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    networks:
+      redis-cluster:
+        ipv4_address: 10.0.0.9
     depends_on:
       redis-cluster-node1:
         condition: service_healthy
@@ -193,7 +210,7 @@ services:
       - redis-insight:/data
     networks:
       redis-cluster:
-        ipv4_address: 173.18.0.9
+        ipv4_address: 10.0.0.10
 
 volumes:
   node1:
@@ -210,4 +227,4 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 173.18.0.0/16
+        - subnet: 10.0.0.0/16
