@@ -4,7 +4,8 @@ services:
     container_name: cluster-node1
     restart: unless-stopped
     command: >
-      redis-server 
+      redis-server
+      --port 6379
       --dir /data 
       --save 60 1 
       --appendonly yes 
@@ -13,7 +14,7 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379
+      - 6379:6379
     volumes:
       - node1:/data
     networks:
@@ -29,7 +30,8 @@ services:
     container_name: cluster-node2
     restart: unless-stopped
     command: >
-      redis-server 
+      redis-server
+      --port 6380
       --dir /data 
       --save 60 1 
       --appendonly yes 
@@ -38,14 +40,14 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379
+      - 6380:6380
     volumes:
       - node2:/data
     networks:
       redis-cluster:
         ipv4_address: 10.0.0.3
     healthcheck:
-      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6380", "PING"]
       interval: 10s
       retries: 5
 
@@ -55,6 +57,7 @@ services:
     restart: unless-stopped
     command: >
       redis-server
+      --port 6381
       --dir /data
       --save 60 1
       --appendonly yes
@@ -63,14 +66,14 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379
+      - 6381:6381
     volumes:
       - node3:/data
     networks:
       redis-cluster:
         ipv4_address: 10.0.0.4
     healthcheck:
-      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6381", "PING"]
       interval: 10s
       retries: 5
 
@@ -81,6 +84,7 @@ services:
     command: >
       redis-server
       --dir /data
+      --port 6382
       --save 60 1
       --appendonly yes
       --protected-mode no
@@ -88,14 +92,14 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379
+      - 6382:6382
     volumes:
       - node4:/data
     networks:
       redis-cluster:
         ipv4_address: 10.0.0.5
     healthcheck:
-      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6382", "PING"]
       interval: 10s
       retries: 5
 
@@ -105,6 +109,7 @@ services:
     restart: unless-stopped
     command: >
       redis-server
+      --port 6383
       --dir /data
       --save 60 1
       --appendonly yes
@@ -113,14 +118,14 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379
+      - 6383:6383
     volumes:
       - node5:/data
     networks:
       redis-cluster:
         ipv4_address: 10.0.0.6
     healthcheck:
-      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6383", "PING"]
       interval: 10s
       retries: 5
 
@@ -130,6 +135,7 @@ services:
     restart: unless-stopped
     command: >
       redis-server
+      --port 6384
       --dir /data
       --save 60 1
       --appendonly yes
@@ -138,14 +144,14 @@ services:
       --loadmodule /opt/redis-stack/lib/rejson.so
       --notify-keyspace-events AKE
     ports:
-      - 6379
+      - 6384:6384
     volumes:
       - node6:/data
     networks:
       redis-cluster:
         ipv4_address: 10.0.0.7
     healthcheck:
-      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "PING"]
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6384", "PING"]
       interval: 10s
       retries: 5
 
@@ -179,8 +185,8 @@ services:
     container_name: redis-haproxy
     restart: unless-stopped
     ports:
-      - 6381:6381
-      - 6382:6382
+      - 6385:6385
+      - 6386:6386
     volumes:
       - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
     networks:
