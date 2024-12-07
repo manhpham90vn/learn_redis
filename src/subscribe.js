@@ -3,13 +3,13 @@ const Redis = require("ioredis");
 const redis = new Redis([
   {
     // Master (write)
-    host: "redis",
+    host: "localhost",
     port: 6379,
   },
   {
     // Replica (read)
-    host: "redis-replica",
-    port: 6380,
+    host: "localhost",
+    port: 6382,
   },
 ]);
 

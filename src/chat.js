@@ -9,7 +9,7 @@ const redis = new Redis([
   {
     // Replica (read)
     host: "localhost",
-    port: 6380,
+    port: 6382,
   },
 ]);
 
@@ -22,7 +22,7 @@ const redisSubscriber = new Redis([
   {
     // Replica (read)
     host: "localhost",
-    port: 6380,
+    port: 6382,
   },
 ]);
 

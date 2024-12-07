@@ -1,19 +1,5 @@
 const Redis = require("ioredis");
 
-const primaryWrite = new Redis.Cluster([
-  {
-    host: "localhost",
-    port: 6385,
-  },
-]);
-
-const reader = new Redis.Cluster([
-  {
-    host: "localhost",
-    port: 6386,
-  },
-]);
-
 const cluster = new Redis.Cluster([
   {
     host: "localhost",
@@ -40,3 +26,39 @@ const cluster = new Redis.Cluster([
     port: 6384,
   },
 ]);
+
+cluster.on("error", (err) => {
+  console.error("Cluster error: ", err);
+});
+
+cluster.on("ready", () => {
+  console.log("Cluster is ready!");
+});
+
+cluster.on("connect", () => {
+  console.log("Cluster is connecting...");
+});
+
+cluster.on("node error", (err, node) => {
+  console.error(`Error on node ${node.options.host}:${node.options.port}`, err);
+});
+
+
+const testPrimaryWrite = async () => {
+  try {
+    console.log("cluster: ", cluster);
+
+    const ping = await cluster.ping();
+    console.log("response ping: ", ping);
+
+    const result = await cluster.set("key", "value");
+    console.log("response set: ", result);
+
+    const resultGet = await cluster.get("key");
+    console.log("response get: ", resultGet);
+  } catch (error) {
+    console.error("Error occurred: ", error);
+  }
+}
+
+testPrimaryWrite()

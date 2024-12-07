@@ -180,32 +180,6 @@ services:
       redis-cluster-node6:
         condition: service_healthy
 
-  redis-haproxy:
-    image: haproxy:latest
-    container_name: redis-haproxy
-    restart: unless-stopped
-    ports:
-      - 6385:6385
-      - 6386:6386
-    volumes:
-      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-    networks:
-      redis-cluster:
-        ipv4_address: 10.0.0.9
-    depends_on:
-      redis-cluster-node1:
-        condition: service_healthy
-      redis-cluster-node2:
-        condition: service_healthy
-      redis-cluster-node3:
-        condition: service_healthy
-      redis-cluster-node4:
-        condition: service_healthy
-      redis-cluster-node5:
-        condition: service_healthy
-      redis-cluster-node6:
-        condition: service_healthy
-
   redis-insight:
     image: redislabs/redisinsight:latest
     restart: unless-stopped
@@ -216,7 +190,7 @@ services:
       - redis-insight:/data
     networks:
       redis-cluster:
-        ipv4_address: 10.0.0.10
+        ipv4_address: 10.0.0.9
 
 volumes:
   node1:

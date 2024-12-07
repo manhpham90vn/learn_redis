@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     command: >
       redis-server 
+      --port 6379
       --dir /data 
       --save 60 1 
       --appendonly yes 
@@ -16,12 +17,13 @@ services:
     volumes:
       - redis-data:/data
 
-  redis-replica:
+  redis-replica-1:
     image: redis/redis-stack-server:latest
-    container_name: redis-replica
+    container_name: redis-replica-1
     restart: unless-stopped
     command: >
       redis-server
+      --port 6380
       --dir /data
       --save 60 1
       --appendonly yes
@@ -30,11 +32,32 @@ services:
       --notify-keyspace-events AKE
       --replicaof redis 6379
     ports:
-      - 6380:6379
+      - 6380:6380
     depends_on:
       - redis
     volumes:
-      - redis-replica-data:/data
+      - redis-replica-data-1:/data
+
+  redis-replica-2:
+    image: redis/redis-stack-server:latest
+    container_name: redis-replica-2
+    restart: unless-stopped
+    command: >
+      redis-server
+      --port 6381
+      --dir /data
+      --save 60 1
+      --appendonly yes
+      --protected-mode no
+      --loadmodule /opt/redis-stack/lib/rejson.so
+      --notify-keyspace-events AKE
+      --replicaof redis 6379
+    ports:
+      - 6381:6381
+    depends_on:
+      - redis
+    volumes:
+      - redis-replica-data-2:/data
 
   redis-insight:
     image: redislabs/redisinsight:latest
@@ -46,9 +69,24 @@ services:
       - redis-insight:/data
     depends_on:
       - redis
-      - redis-replica
+      - redis-replica-1
+      - redis-replica-2
+
+  redis-haproxy:
+    image: haproxy:latest
+    container_name: redis-haproxy
+    restart: unless-stopped
+    ports:
+      - 6382:6382
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    depends_on:
+      - redis
+      - redis-replica-1
+      - redis-replica-2
 
 volumes:
   redis-data:
-  redis-replica-data:
+  redis-replica-data-1:
+  redis-replica-data-2:
   redis-insight:
